@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Master of Pakour</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P" rel="stylesheet">
+<style>
+body {
+    font-family: "Press Start 2P", sans-serif;
+}
+
+#game-container {
+    position: relative;
+}
+
+#player2 {
+    position: absolute;
+    top: 0px;
+    left: 750px;
+}
+
+#player1,
+#counter,
+#game-start,
+#game-over {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
+#game-start,
+#game-over {
+    border: 1px solid gray;
+    width: 1450px;
+    height: 600px;
+}
+
+canvas {
+    border: 1px solid gray;
+    width: 700px;
+    height: 600px;
+}
+
+canvas {
+    background-size: cover;
+    background: url(assets/background/backgroundtext.png);
+}
+
+#game-start,
+#game-over {
+    background: rgba(1, 1, 1, 0.8);
+}
+
+#counter text {
+    font-size: 130%;
+    fill: white;
+    stroke: black;
+    stroke-width: 1px;
+}
+
+#game-start text {
+    font-size: 150%;
+    fill: white;
+    text-anchor: middle;
+}
+
+#game-start #game-title {
+    font-size: 400%;
+    fill: url(#title-fill);
+    stroke: black;
+}
+
+#game-over text {
+    font-size: 120%;
+    fill: url(#game-over-fill);
+    text-anchor: middle;
+}
+
+.canvas-container {
+    display: flex;
+    width: 40%;
+}
+</style>
+</head>
+
+<body>
+<div id="game-container">
+<canvas id="player1" width="600px" height="600px"></canvas>
+<canvas id="player2" width="600px" height="600px"></canvas>
+
+
+<svg xmlns="http://www.w3.org/2000/svg" id="game-start">
+            <defs>
+                <linearGradient id="title-fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0.2" stop-color="red" />
+                    <stop offset="0.4" stop-color="yellow" />
+                    <stop offset="0.6" stop-color="green" />
+                    <stop offset="0.8" stop-color="purple" />
+                </linearGradient>
+            </defs>
+            <text id="game-title" x="50%" y="45%">Parkour Game</text>
+            <text x="50%" y="60%">Click here to start the game</text>
+        </svg>
+
+<svg xmlns="http://www.w3.org/2000/svg" id="game-over" style="display: none">
+            <defs>
+                <linearGradient id="game-over-fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="red" />
+                    <stop offset="0.5" stop-color="yellow" />
+                    <stop offset="1" stop-color="red" />
+                </linearGradient>
+            </defs>
+            <text x="50%" y="50%">
+                Game finish. 
+                <tspan id="winner-game"></tspan>
+            </text>
+        </svg>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+<script src="bounding_box.js"></script>
+<script src="sprite.js"></script>
+<script src="player.js"></script>
+<script src="platform.js"></script>
+<script src="trap.js"></script>
+<script src="savePoint.js"></script>
+<script src="gameObject.js"></script>
+<script src="cherry.js"></script>
+<script src="winPoint.js"></script>
+<script>
+$(document).ready(function() {
+    let players = {
+        player1: null,
+        player2: null,
+    }
+    let gameState = {
+        player1: {
+            cherryLeft: 1,
+            win: false,
+        },
+        player2: {
+            cherryLeft: 1,
+            win: false,
+        },
+        finish: false,
+        winId: 0,
+    }
+    gameArea(players, gameState, "#player1");
+    gameArea(players, gameState, "#player2");
+    // TODO game start here
+    $("#game-start").on("click", function() {
+        /* Hide the start screen */
+        $("#game-start").hide();
+
+        $(document).on("keydown", function(event) {
+            /* TODO */
+            /* Handle the key down */
+            if (players.player1 != null && players.player2 != null) {
+                switch (event.keyCode) {
+                    case 37:
+                        players.player1.move(1);
+                        break;
+                    case 38:
+                        players.player1.move(3);
+                        break;
+                    case 39:
+                        players.player1.move(2);
+                        break;
+                    case 65:
+                        players.player2.move(1);
+                        break;
+                    case 68:
+                        players.player2.move(2);
+                        break;
+                    case 87:
+                        players.player2.move(3);
+                        break;
+                }
+            }
+        });
+
+        /* Handle the keyup of arrow keys and spacebar */
+        $(document).on("keyup", function(event) {
+            /* TODO */
+            /* Handle the key up */
+            if (players.player1 != null) {
+                switch (event.keyCode) {
+                    case 37:
+                        players.player1.stop(1);
+                        break;
+                    case 39:
+                        players.player1.stop(2);
+                        break;
+                    case 38:
+                        players.player1.stop(3);
+                        break;
+                    case 65:
+                        players.player2.stop(1);
+                        break;
+                    case 68:
+                        players.player2.stop(2);
+                        break;
+                    case 87:
+                        players.player2.stop(3);
+                        break;
+                }
+            }
+        });
+    });
+
+});
+
+const gameArea = function(players, gameState, canvasId) {
+
+    const groundPoint = 580;
+    /* Get the canvas and 2D context */
+    const cv = $(canvasId).get(0);
+    const context = cv.getContext("2d");
+    // Create ID player
+    let id = 1;
+    if (canvasId === "#player2") {
+        id = 2;
+    }
+    /* Create the sounds */
+
+    let gameStartTime = 0; // The timestamp when the game starts
+    /* Create the game area */
+    const gameArea = BoundingBox(context, 165, 60, groundPoint - 20, 600);
+
+    /* Create the sprites in the game */
+    // Create move object
+    const moveObject = [];
+    // Create ground
+    const grounds = [];
+    for (let i = -200; i < 2000; i++) {
+        grounds.push(Platform(context, 22 + i * 40, groundPoint, gameArea, 1));
+    }
+    //Create wall
+    const walls = []
+    walls.push(Platform(context, 350, 480, gameArea, 2));
+    walls.push(Platform(context, 398, 480, gameArea, 2));
+    walls.push(Platform(context, 446, 400, gameArea, 2));
+    walls.push(Platform(context, 494, 400, gameArea, 2));
+    walls.push(Platform(context, 638, 480, gameArea, 2));
+    walls.push(Platform(context, 686, 480, gameArea, 2));
+    walls.push(Platform(context, 734, 400, gameArea, 2));
+    walls.push(Platform(context, 782, 400, gameArea, 2));
+    walls.push(Platform(context, 830, 320, gameArea, 2));
+    walls.push(Platform(context, 878, 320, gameArea, 2));
+    walls.push(Platform(context, 542, 220, gameArea, 2));
+    walls.push(Platform(context, 580, 220, gameArea, 2));
+    walls.push(Platform(context, 734, 220, gameArea, 2));
+    walls.push(Platform(context, 782, 220, gameArea, 2));
+    walls.push(Platform(context, 926, 400, gameArea, 2));
+    walls.push(Platform(context, 974, 400, gameArea, 2));
+    // Create saving points
+    const savePoints = []
+    savePoints.push(SavePoint(context, 640, 440, gameArea, 1));
+    // Create start
+    const start = Platform(context, 150, 545, gameArea, 3);
+    // Create end
+    const end = WinPoint(context, 940, 364, gameArea);
+    // Create trap
+    const traps = []
+    for (let i = 0; i < 500; i++) {
+        traps.push(Trap(context, 280 + i * 32, 552, gameArea, 1));
+    }
+    traps.push(Trap(context, 590, 320, gameArea, 2));
+    traps.push(Trap(context, 660, 140, gameArea, 2));
+    // Create cherries
+    const cherries = []
+    cherries.push(Cherry(context, 560, 196, gameArea));
+    // Create cherry Point
+    const cherryPoint = []
+    cherryPoint.push(Cherry(context, 120, 25, gameArea));
+    // Set up moveObj
+    grounds.forEach(e => moveObject.push(e));
+    walls.forEach(e => moveObject.push(e))
+    traps.forEach(e => moveObject.push(e));
+    savePoints.forEach(e => moveObject.push(e));
+    cherries.forEach(e => moveObject.push(e));
+    moveObject.push(start);
+    moveObject.push(end);
+    //Player
+    let player = Player(context, 150, 535, gameArea, moveAll, moveBack, walls, traps, savePoints, cherries, end, gameState, id, cherryPoint); // The player
+    if (canvasId === "#player1") {
+        players.player1 = player
+    } else {
+        players.player2 = player
+    }
+    /* The main processing of the game */
+
+    function doFrame(now) {
+        // TODO show the game over here
+        if (gameState.finish) {
+            if (gameState.winId === 1) {
+                $("#winner-game").text("Player 1 win");
+            } else if (gameState.winId === 2) {
+                $("#winner-game").text("Player 2 win");
+            }
+
+            $("#game-over").show();
+        }
+        if (gameStartTime == 0) gameStartTime = now;
+
+        /* Update the time remaining */
+        const gameTimeSoFar = now - gameStartTime;
+
+
+        player.update(now);
+        traps.forEach(e =>
+            e.update(now)
+        );
+        cherries.forEach(e => e.update(now));
+
+
+        /* Clear the screen */
+        context.clearRect(0, 0, cv.width, cv.height);
+
+        /* Draw the sprites */
+        player.draw();
+        start.draw();
+        end.draw();
+        grounds.forEach(e => {
+            e.draw();
+        });
+        walls.forEach(e => {
+            e.draw();
+        });
+        traps.forEach(e => {
+            e.draw();
+        });
+        savePoints.forEach(e => {
+            e.draw();
+        });
+        cherries.forEach(e => {
+            e.draw();
+        });
+        cherryPoint.forEach(e => {
+            e.draw();
+        });
+        /* Process the next frame */
+        requestAnimationFrame(doFrame);
+    }
+
+    function moveAll(dir) {
+        // move left
+        if (dir === 2) {
+            moveObject.forEach(e => e.moveLeft());
+        } else {
+            moveObject.forEach(e => e.moveRight());
+        }
+    }
+
+    function moveBack(distance) {
+        moveObject.forEach(e => e.move(distance));
+    }
+    /* Start the game */
+    requestAnimationFrame(doFrame);
+
+}
+</script>
+</body>
+
+</html>
