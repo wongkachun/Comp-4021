@@ -132,6 +132,13 @@ $(document).ready(function() {
         player1: null,
         player2: null,
     }
+    const sounds = {
+        background: new Audio("assets/sound/background-sound.mp3"),
+        collect: new Audio("assets/sound/cherry-collect.mp3"),
+        dead: new Audio("assets/sound/dead-sound.mp3"),
+        savepoint: new Audio("assets/sound/savepoint-sound.mp3"),
+        gameover: new Audio("assets/sound/gameover-sound.mp3")
+    };
     let gameState = {
         player1: {
             cherryLeft: 1,
@@ -143,12 +150,14 @@ $(document).ready(function() {
         },
         finish: false,
         winId: 0,
+        yourId: 1,
     }
-    gameArea(players, gameState, "#player1");
-    gameArea(players, gameState, "#player2");
+    gameArea(players, gameState, "#player1", sounds);
+    gameArea(players, gameState, "#player2", sounds);
     // TODO game start here
     $("#game-start").on("click", function() {
         /* Hide the start screen */
+        sounds.background.play();
         $("#game-start").hide();
 
         $(document).on("keydown", function(event) {
@@ -209,7 +218,7 @@ $(document).ready(function() {
 
 });
 
-const gameArea = function(players, gameState, canvasId) {
+const gameArea = function(players, gameState, canvasId, sounds) {
 
     const groundPoint = 580;
     /* Get the canvas and 2D context */
@@ -264,8 +273,8 @@ const gameArea = function(players, gameState, canvasId) {
     for (let i = 0; i < 500; i++) {
         traps.push(Trap(context, 280 + i * 32, 552, gameArea, 1));
     }
-    traps.push(Trap(context, 590, 320, gameArea, 2));
-    traps.push(Trap(context, 660, 140, gameArea, 2));
+    traps.push(Trap(context, 590, 300, gameArea, 2));
+    traps.push(Trap(context, 660, 120, gameArea, 2));
     // Create cherries
     const cherries = []
     cherries.push(Cherry(context, 560, 196, gameArea));
@@ -281,7 +290,7 @@ const gameArea = function(players, gameState, canvasId) {
     moveObject.push(start);
     moveObject.push(end);
     //Player
-    let player = Player(context, 150, 535, gameArea, moveAll, moveBack, walls, traps, savePoints, cherries, end, gameState, id, cherryPoint); // The player
+    let player = Player(context, 150, 535, gameArea, moveAll, moveBack, walls, traps, savePoints, cherries, end, gameState, id, cherryPoint, sounds); // The player
     if (canvasId === "#player1") {
         players.player1 = player
     } else {
@@ -293,12 +302,17 @@ const gameArea = function(players, gameState, canvasId) {
         // TODO show the game over here
         if (gameState.finish) {
             if (gameState.winId === 1) {
+                sounds.background.pause();
+                sounds.gameover.play();
                 $("#winner-game").text("Player 1 win");
             } else if (gameState.winId === 2) {
+                sounds.background.pause();
+                sounds.gameover.play();
                 $("#winner-game").text("Player 2 win");
             }
 
             $("#game-over").show();
+            return;
         }
         if (gameStartTime == 0) gameStartTime = now;
 

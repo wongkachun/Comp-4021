@@ -3,7 +3,7 @@
 // - `x` - The initial x position of the player
 // - `y` - The initial y position of the player
 // - `gameArea` - The bounding box of the game area
-const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, savePoints, cherries, end, gameState, id, cherryPoint) {
+const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, savePoints, cherries, end, gameState, id, cherryPoint, sounds) {
     let velocity = 0;
     const gravity = 0.5;
     let isGround = false;
@@ -182,6 +182,9 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
             }
         });
         if (hitTrap) {
+            if (gameState.yourId === id) {
+                sounds.dead.play();
+            }
             moveBack(-totalDistance);
             totalDistance = 0;
             sprite.setY(280);
@@ -197,6 +200,9 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
             }
         });
         if (hitSavePoint) {
+            if (gameState.yourId === id) {
+                sounds.savepoint.play();
+            }
             totalDistance = -8;
             return;
         }
@@ -209,6 +215,7 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
                 } else {
                     gameState.player2.cherryLeft -= 1;
                 }
+                sounds.collect.play();
                 cherryPoint.pop();
             }
         });
