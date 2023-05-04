@@ -10,6 +10,7 @@ const Platform = function(ctx, x, y, gameArea, option) {
             timing: 2000,
             loop: false,
             moving: false,
+            movingDirection: 1,
             movDistance: 0
         },
         wall: {
@@ -21,8 +22,21 @@ const Platform = function(ctx, x, y, gameArea, option) {
             timing: 2000,
             loop: false,
             moving: false,
+            movingDirection: 1,
             movDistance: 0
 
+        },
+        movingwall: {
+            x: 192,
+            y: 0,
+            width: 48,
+            height: 16,
+            count: 1,
+            timing: 50,
+            loop: true,
+            moving: true,
+            movingDirection: 1,
+            movDistance: 200
         },
         start: {
             x: 0,
@@ -33,6 +47,7 @@ const Platform = function(ctx, x, y, gameArea, option) {
             timing: 2000,
             loop: false,
             moving: false,
+            movingDirection: 1,
             movDistance: 0
         }
     }
@@ -63,6 +78,16 @@ const Platform = function(ctx, x, y, gameArea, option) {
                     y: 0.0
                 })
                 .useSheet("./assets/start/Start.png");
+            break;
+        case 4:
+            sprite.setSequence(sequences.movingwall)
+                .setScale(1)
+                .setShadowScale({
+                    x: 0.0,
+                    y: 0.0
+                })
+                .useSheet("./assets/platform/Terrain.png");
+            break;
     }
 
     const moveLeft = function() {
@@ -92,6 +117,7 @@ const Platform = function(ctx, x, y, gameArea, option) {
         draw: sprite.draw,
         moveLeft: moveLeft,
         moveRight: moveRight,
-        move: move
+        move: move,
+        update: sprite.update
     };
 }

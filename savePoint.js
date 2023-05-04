@@ -11,6 +11,7 @@ const SavePoint = function(ctx, x, y, gameArea, option) {
             timing: 2000,
             loop: false,
             moving: false,
+            movingDirection: 1,
             movDistance: 0
         },
         after: {
@@ -21,6 +22,7 @@ const SavePoint = function(ctx, x, y, gameArea, option) {
             count: 10,
             loop: true,
             moving: false,
+            movingDirection: 1,
             movingDistance: 0,
         }
     }

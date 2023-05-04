@@ -10,6 +10,7 @@ const WinPoint = function(ctx, x, y, gameArea) {
             timing: 0,
             loop: false,
             moving: false,
+            movingDirection: 1,
             movDistance: 0
         }
     }

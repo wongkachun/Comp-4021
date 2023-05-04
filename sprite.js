@@ -210,20 +210,38 @@ const Sprite = function(ctx, x, y) {
                 }
             }
             if (sequence.moving) {
-                if (movingTurn == 0) {
-                    y += 4;
-                    movingDistance += 4;
+                if (sequence.movingDirection == 0) {
+                    if (movingTurn == 0) {
+                        y += 4;
+                        movingDistance += 4;
+                    } else {
+                        y -= 4;
+                        movingDistance -= 4;
+                    }
+                    if (movingDistance < 0) {
+                        movingDistance = 0;
+                        movingTurn = 0;
+                    } else if (movingDistance > sequence.movDistance) {
+                        movingDistance = sequence.movDistance;
+                        movingTurn = 1;
+                    }
                 } else {
-                    y -= 4;
-                    movingDistance -= 4;
+                    if (movingTurn == 0) {
+                        x += 4;
+                        movingDistance += 4;
+                    } else {
+                        x -= 4;
+                        movingDistance -= 4;
+                    }
+                    if (movingDistance < 0) {
+                        movingDistance = 0;
+                        movingTurn = 0;
+                    } else if (movingDistance > sequence.movDistance) {
+                        movingDistance = sequence.movDistance;
+                        movingTurn = 1;
+                    }
                 }
-                if (movingDistance < 0) {
-                    movingDistance = 0;
-                    movingTurn = 0;
-                } else if (movingDistance > sequence.movDistance) {
-                    movingDistance = sequence.movDistance;
-                    movingTurn = 1;
-                }
+
             }
             lastUpdate = time;
         }

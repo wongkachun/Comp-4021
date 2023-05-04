@@ -22,6 +22,7 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
             timing: 1000,
             loop: false,
             moving: false,
+            movingDirection: 1,
             movDistance: 0
         },
         idleDown: {
@@ -33,6 +34,7 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
             timing: 1000,
             loop: false,
             moving: false,
+            movingDirection: 1,
             movDistance: 0
         },
         idleRight: {
@@ -44,6 +46,7 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
             timing: 1000,
             loop: false,
             moving: false,
+            movingDirection: 1,
             movDistance: 0
         },
         /* Moving sprite sequences for facing different directions */
@@ -56,6 +59,7 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
             timing: 50,
             loop: true,
             moving: false,
+            movingDirection: 1,
             movDistance: 0
         },
         moveRight: {
@@ -67,6 +71,8 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
             timing: 50,
             loop: true,
             moving: false,
+            movingDirection: 1,
+
             movDistance: 0
         }
     };
@@ -94,6 +100,21 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
     // This is the moving speed (pixels per second) of the player
     //let speed = 0;
 
+    // Cheat mode
+    const cheat = function(dir) {
+        if (id == 1) {
+            gameState.player1.isCheat = true;
+        } else {
+            gameState.player2.isCheat = true;
+        }
+    };
+    const resetCheat = function() {
+        if (id == 1) {
+            gameState.player1.isCheat = false;
+        } else {
+            gameState.player2.isCheat = false;
+        }
+    };
     // This function sets the player's moving direction.
     // - `dir` - the moving direction (1: Left, 2: Right)
     const move = function(dir) {
@@ -244,19 +265,18 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
             /* Move the player */
             switch (direction) {
                 case 1:
-                    //x -= speed / 60;
                     totalDistance -= 4;
                     break;
                 case 2:
-                    // x += speed / 60;
                     totalDistance += 4;
                     break;
                 case 3:
                     if (y + sequences.idleLeft.height >= gameArea.getBottom() || isGround) {
-                        this.velocity -= 10;
+                        this.velocity -= 10.25;
                         direction = 0;
                     }
                     break;
+
             }
             if (direction == 1) {
                 moveAll(1);
@@ -264,13 +284,38 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
                 moveAll(2);
             }
         }
-
         /* Set the new position if it is within the game area */
         if (gameArea.isPointInBox(x, y)) {
-            sprite.setXY(x, y);
+            if (id == 1) {
+                if (gameState.player1.isCheat) {
+                    this.velocity = 0;
+                    sprite.setXY(x, 40);
+                } else {
+                    sprite.setXY(x, y);
+                }
+            } else {
+                if (gameState.player2.isCheat) {
+                    this.velocity = 0;
+                    sprite.setXY(x, 40);
+                } else {
+                    sprite.setXY(x, y);
+                }
+            }
         } else {
-            if (this.velocity != 0) {
-                sprite.setY(y);
+            if (id == 1) {
+                if (gameState.player1.isCheat) {
+                    this.velocity = 0;
+                    sprite.setY(40);
+                } else if (this.velocity != 0) {
+                    sprite.setY(y);
+                }
+            } else {
+                if (gameState.player2.isCheat) {
+                    this.velocity = 0;
+                    sprite.setY(40);
+                } else if (this.velocity != 0) {
+                    sprite.setY(y);
+                }
             }
 
         }
@@ -282,6 +327,8 @@ const Player = function(ctx, x, y, gameArea, moveAll, moveBack, walls, traps, sa
     return {
         move: move,
         stop: stop,
+        cheat: cheat,
+        resetCheat: resetCheat,
         getBoundingBox: sprite.getBoundingBox,
         draw: sprite.draw,
         update: update
