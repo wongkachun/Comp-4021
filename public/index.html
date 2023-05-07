@@ -1,94 +1,94 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Master of Parkour</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="game.html" rel="import" />
-    <link href="style.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
+<title>Master of Parkour</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="game.html" rel="import" />
+<link href="style.css" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
 </head>
+
 <body>
-    <div id="includedContent"></div>
+<div id="includedContent"></div>
 
-    <div id="signin-overlay" class="overlay row" >
+<div id="signin-overlay" class="overlay row">
 
-        <svg xmlns="http://www.w3.org/2000/svg" id="game-start">
+<svg xmlns="http://www.w3.org/2000/svg" id="game-start">
             <text id="game-start-title" x="35%" y="20%">Master of Parkour</text>
         </svg>
 
-        <div class="content shadow row" id = "description-box">
-            <div class="description">Dodge all the traps and collect all the cherries as fast as you can!
-                <br>
-                <br>
-                Instructions:
-                <br>
-                1. Use arrow keys to walk and jump.
-                <br>
-                2. You will respawn at the last checkpoint.
-                <br>
-                3. (How to use cheat mode)
-            </div>
-        </div>
+<div class="content shadow row" id="description-box">
+<div class="description">Dodge all the traps and collect all the cherries as fast as you can!
+<br>
+<br> Instructions:
+<br> 1. Use arrow keys to walk and jump.
+<br> 2. Try to avoid spike, saw. You will die if hit them
+<br> 3. You will respawn at the last checkpoint.
+<br> 4. You need to collect all cherries to finish the game
+<br> 5. Press q while using arrow keys to cheat
+</div>
+</div>
 
-        <div class="content shadow row" id="signin-box">
-            <form id="signin-form" class="col">
-                <div class="caption">LOGIN TO PLAY</div>
-                <div class="spacer-0"></div>
-                <input id="signin-username" placeholder="Username"></input>
-                <input id="signin-password" type="password" placeholder="Password"></input>
-                <div class="spacer-0"></div>
-                <button type="submit">Login</button>
-                <div id="signin-message" class="warning center"></div>
-                <div class="spacer-grow"></div>
-            </form>
+<div class="content shadow row" id="signin-box">
+<form id="signin-form" class="col">
+<div class="caption">LOGIN TO PLAY</div>
+<div class="spacer-0"></div>
+<input id="signin-username" placeholder="Username"></input>
+<input id="signin-password" type="password" placeholder="Password"></input>
+<div class="spacer-0"></div>
+<button type="submit">Login</button>
+<div id="signin-message" class="warning center"></div>
+<div class="spacer-grow"></div>
+</form>
 
-            <div class="spacer-0"></div>
+<div class="spacer-0"></div>
 
-            <form id="register-form" class="col">
-                <div class="caption">REGISTER AN ACCOUNT</div>
-                <div class="spacer-0"></div>
-                <input id="register-username" maxlength="10" placeholder="Enter your username"></input>
-                <input id="register-name" maxlength="16" placeholder="Enter your name"></input>
-                <input id="register-password" type="password" placeholder="Enter your password"></input>
-                <input id="register-confirm" type="password" placeholder="Enter your password again"></input>
-                <div class="spacer-0"></div>
-                <button type="submit">Register</button>
-                <div id="register-message" class="warning center"></div>
-            </form>
-        </div>
-    </div>
+<form id="register-form" class="col">
+<div class="caption">REGISTER AN ACCOUNT</div>
+<div class="spacer-0"></div>
+<input id="register-username" maxlength="10" placeholder="Enter your username"></input>
+<input id="register-name" maxlength="16" placeholder="Enter your name"></input>
+<input id="register-password" type="password" placeholder="Enter your password"></input>
+<input id="register-confirm" type="password" placeholder="Enter your password again"></input>
+<div class="spacer-0"></div>
+<button type="submit">Register</button>
+<div id="register-message" class="warning center"></div>
+</form>
+</div>
+</div>
 
 
-    <script src="/socket.io/socket.io.min.js"></script>
-    <script src="scripts/socket.js"></script>
-    <script src="scripts/ui.js"></script>
-    <script src="scripts/registration.js"></script>
-    <script src="scripts/authentication.js"></script>
-    <script>
-    $("#includedContent").load("game.html"); 
+<script src="/socket.io/socket.io.min.js"></script>
+<script src="scripts/socket.js"></script>
+<script src="scripts/ui.js"></script>
+<script src="scripts/registration.js"></script>
+<script src="scripts/authentication.js"></script>
+<script>
+$("#includedContent").load("game.html");
 
-    $(document).ready(function() {
-        // Initialize the UI
-        UI.initialize();
+$(document).ready(function() {
+    // Initialize the UI
+    UI.initialize();
 
-        // Validate the signin
-        Authentication.validate(
-            () => {
+    // Validate the signin
+    Authentication.validate(
+        () => {
 
-                SignInForm.hide();
-                UserPanel.update(Authentication.getUser());
-                UserPanel.show();
-                
-                Socket.connect();
+            SignInForm.hide();
 
-            },
-            () => { 
-                SignInForm.show();
-            }
-        );
-        
-    });
-    </script>
+
+            Socket.connect();
+
+        },
+        () => {
+            SignInForm.show();
+        }
+    );
+
+});
+</script>
 </body>
+
 </html>
