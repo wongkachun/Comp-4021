@@ -89,6 +89,37 @@ canvas {
     align-content: center;
 }
 
+#loader-focus {
+    position: absolute;
+    left: 44%;
+    top: 260px;
+    z-index: 1;
+    width: 120px;
+    height: 120px;
+    margin: -76px 0 0 -76px;
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    animation: spin 2s linear infinite;
+}
+
+#focus {
+    display: none;
+}
+
+#text-focus {
+    position: absolute;
+    left: 33%;
+    top: 210px;
+    color: red;
+    align-content: center;
+}
+
+#text-focus {
+    font-size: 150%;
+    text-align: center;
+}
+
 #loader {
     position: absolute;
     left: 44%;
@@ -104,6 +135,10 @@ canvas {
 }
 
 #waiting {
+    display: none;
+}
+
+#focus {
     display: none;
 }
 
@@ -132,6 +167,13 @@ canvas {
 Waiting for other player
 </div>
 <div id="loader">
+</div>
+</div>
+<div id="focus">
+<div id="text-focus">
+Other player is not focus
+</div>
+<div id="loader-focus">
 </div>
 </div>
 <audio id="background-sound">
@@ -177,6 +219,8 @@ Waiting for other player
 <script src="scripts/socket.js"></script>
 <script src="scripts/gamestate.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {})
+
 $(document).ready(function() {
     const sounds = {
         collect: new Audio("assets/sound/cherry-collect.mp3"),
@@ -191,12 +235,12 @@ $(document).ready(function() {
 
     $(document).on("keydown", function(event) {
         if (!GameState.getIsStart()) return;
+        if (GameState.getPause()) return;
         /* TODO */
         /* Handle the key down */
         if (GameState.getPlayer().player1 != null && GameState.getPlayer().player2 != null) {
             switch (event.keyCode) {
                 case 37:
-                    GameState.getPlayer().player1.move(1);
                     Socket.getSocket().emit('player-move', {
                         index: 1,
                         distance: GameState.getPlayer().player1.getTotalDistance(),
@@ -204,7 +248,6 @@ $(document).ready(function() {
                     });
                     break;
                 case 38:
-                    GameState.getPlayer().player1.move(3);
                     Socket.getSocket().emit('player-move', {
                         index: 3,
                         distance: GameState.getPlayer().player1.getTotalDistance(),
@@ -212,7 +255,6 @@ $(document).ready(function() {
                     });
                     break;
                 case 39:
-                    GameState.getPlayer().player1.move(2);
                     Socket.getSocket().emit('player-move', {
                         index: 2,
                         distance: GameState.getPlayer().player1.getTotalDistance(),
@@ -220,7 +262,6 @@ $(document).ready(function() {
                     });
                     break;
                 case 81:
-                    GameState.getPlayer().player1.cheat();
                     Socket.getSocket().emit('player-cheat', "1");
                     break;
             }
@@ -230,12 +271,12 @@ $(document).ready(function() {
     /* Handle the keyup of arrow keys and spacebar */
     $(document).on("keyup", function(event) {
         if (!GameState.getIsStart()) return;
+        if (GameState.getPause()) return;
         /* TODO */
         /* Handle the key up */
         if (GameState.getPlayer().player1 != null) {
             switch (event.keyCode) {
                 case 37:
-                    GameState.getPlayer().player1.stop(1);
                     Socket.getSocket().emit('player-stop', {
                         index: 1,
                         distance: GameState.getPlayer().player1.getTotalDistance(),
@@ -243,7 +284,6 @@ $(document).ready(function() {
                     });
                     break;
                 case 39:
-                    GameState.getPlayer().player1.stop(2);
                     Socket.getSocket().emit('player-stop', {
                         index: 2,
                         distance: GameState.getPlayer().player1.getTotalDistance(),
@@ -251,7 +291,6 @@ $(document).ready(function() {
                     });
                     break;
                 case 38:
-                    GameState.getPlayer().player1.stop(3);
                     Socket.getSocket().emit('player-stop', {
                         index: 3,
                         distance: GameState.getPlayer().player1.getTotalDistance(),
@@ -259,7 +298,6 @@ $(document).ready(function() {
                     });
                     break;
                 case 81:
-                    GameState.getPlayer().player1.resetCheat();
                     Socket.getSocket().emit('reset-player-cheat', "1");
                     break;
             }
@@ -267,6 +305,16 @@ $(document).ready(function() {
     });
 
 });
+
+function checkWindowFocused() {
+    if (document.hidden) {
+        Socket.getSocket().emit('player-focus', "0");
+    } else {
+        Socket.getSocket().emit('player-focus', "1");
+    }
+}
+
+setInterval(checkWindowFocused, 300);
 </script>
 </body>
 

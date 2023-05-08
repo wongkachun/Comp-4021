@@ -1,5 +1,6 @@
 const GameState = (function() {
     let isStart = false;
+    let isPause = false;
     let players = {
         player1: null,
         player2: null,
@@ -35,47 +36,63 @@ const GameState = (function() {
         $('#background-sound')[0].play();
         $("#waiting").hide();
     }
-    const playerMove = function(index) {
+    const firstPlayerMove = function(index) {
+        players.player1.move(index);
+    }
+    const firstPlayerStop = function(index) {
+        players.player1.stop(index);
+    }
+    const firstCheat = function() {
+        players.player1.cheat();
+    }
+    const firstResetCheat = function() {
+        players.player1.resetCheat();
+    }
+    const secondPlayerMove = function(index) {
         players.player2.move(index);
     }
-    const playerStop = function(index) {
+    const secondPlayerStop = function(index) {
         players.player2.stop(index);
     }
-    const cheat = function() {
+    const secondCheat = function() {
         players.player2.cheat();
     }
-    const resetCheat = function() {
+    const secondResetCheat = function() {
         players.player2.resetCheat();
-    }
-    const sync = function(totalDistance, y) {
-        let curDistance = players.player2.getTotalDistance();
-        let diff = parseInt(totalDistance) - curDistance;
-        players.player2.setY(y);
-        if (diff < 0) {
-            for (let i = 0; i < -diff; i = i + 4) {
-                players.player2.move(1);
-                players.player2.stop(1);
-            }
-        } else {
-            for (let i = 0; i < diff; i = i + 4) {
-                players.player2.move(2);
-                players.player2.stop(2);
-            }
-        }
     }
     const gameover = function() {
         $("#game-over").show();
+        $("#waiting").hide();
+    }
+    const pause = function() {
+        isPause = true;
+        $("#focus").show();
+        $("#game-start").show();
+    }
+    const resume = function() {
+        isPause = false;
+        $("#focus").hide();
+        $("#game-start").hide();
+    }
+    const getPause = function() {
+        return isPause;
     }
     return {
+        pause: pause,
+        resume: resume,
+        getPause: getPause,
         gameover: gameover,
-        sync,
         getIsStart,
         startPlay,
         getPlayer,
         getGameState,
-        playerMove,
-        playerStop,
-        cheat,
-        resetCheat
+        secondCheat: secondCheat,
+        secondPlayerMove: secondPlayerMove,
+        secondPlayerStop: secondPlayerStop,
+        secondResetCheat: secondResetCheat,
+        firstCheat: firstCheat,
+        firstPlayerMove: firstPlayerMove,
+        firstPlayerStop: firstPlayerStop,
+        firstResetCheat: firstResetCheat
     }
 })();

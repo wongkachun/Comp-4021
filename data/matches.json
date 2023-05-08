@@ -40,5 +40,19 @@
    "longs"
   ],
   "winner": "longs"
+ },
+ {
+  "players": [
+   "long",
+   "longs"
+  ],
+  "winner": "long"
+ },
+ {
+  "players": [
+   "long",
+   "longs"
+  ],
+  "winner": "long"
  }
 ]

@@ -100,16 +100,20 @@ io.on("connection", (socket) => {
         io.emit('player-connection', playerIndex)
     })
     socket.on('player-move', (message) => {
-        socket.broadcast.emit('player-move', message);
+        socket.broadcast.emit('second-player-move', message);
+        socket.emit('first-player-move', message);
     })
     socket.on('player-stop', (message) => {
-        socket.broadcast.emit('player-stop', message);
+        socket.broadcast.emit('second-player-stop', message);
+        socket.emit('first-player-stop', message);
     })
     socket.on('player-cheat', (message) => {
-        socket.broadcast.emit('player-cheat', message);
+        socket.broadcast.emit('second-player-cheat', message);
+        socket.emit('first-player-cheat', message);
     })
     socket.on('reset-player-cheat', (message) => {
-        socket.broadcast.emit('reset-player-cheat', message);
+        socket.broadcast.emit('second-reset-player-cheat', message);
+        socket.emit('first-reset-player-cheat', message);
     })
     socket.on('game-win', (message) => {
         const match = {
@@ -120,5 +124,9 @@ io.on("connection", (socket) => {
         const matches = JSON.parse(jsonData);
         matches.push(match);
         fs.writeFileSync("data/matches.json", JSON.stringify(matches, null, " "));
+    })
+
+    socket.on('player-focus', (message) => {
+        socket.broadcast.emit('player-focus', message);
     })
 });

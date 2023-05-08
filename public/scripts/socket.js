@@ -32,21 +32,43 @@ const Socket = (function() {
                 }
             }
         })
-        socket.on('player-move', (index) => {
+        socket.on('second-player-move', (index) => {
             console.log("move", index);
-            GameState.playerMove(parseInt(index.index));
+            GameState.secondPlayerMove(parseInt(index.index));
             //GameState.sync(parseInt(index.distance), index.y);
         })
-        socket.on('player-stop', (index) => {
-            GameState.playerStop(parseInt(index.index));
+        socket.on('second-player-stop', (index) => {
+            GameState.secondPlayerStop(parseInt(index.index));
             //GameState.sync(parseInt(index.distance), index.y);
         })
-        socket.on('player-cheat', (message) => {
-            GameState.cheat();
+        socket.on('second-player-cheat', (message) => {
+            GameState.secondCheat();
         })
 
-        socket.on('reset-player-cheat', (message) => {
-            GameState.resetCheat();
+        socket.on('second-reset-player-cheat', (message) => {
+            GameState.secondResetCheat();
+        })
+        socket.on('first-player-move', (index) => {
+            GameState.firstPlayerMove(parseInt(index.index));
+            //GameState.sync(parseInt(index.distance), index.y);
+        })
+        socket.on('first-player-stop', (index) => {
+            GameState.firstPlayerStop(parseInt(index.index));
+            //GameState.sync(parseInt(index.distance), index.y);
+        })
+        socket.on('first-player-cheat', (message) => {
+            GameState.firstCheat();
+        })
+
+        socket.on('first-reset-player-cheat', (message) => {
+            GameState.firstResetCheat();
+        })
+        socket.on('player-focus', (message) => {
+            if (message === "0") {
+                GameState.pause();
+            } else {
+                GameState.resume();
+            }
         })
     };
 
