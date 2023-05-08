@@ -34,7 +34,7 @@ const Platform = function(ctx, x, y, gameArea, option) {
             count: 1,
             timing: 50,
             loop: true,
-            moving: true,
+            moving: false,
             movingDirection: 1,
             movDistance: 200
         },

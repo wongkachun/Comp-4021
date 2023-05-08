@@ -1,18 +1,10 @@
 {
- "Sean": {
-  "name": "Sean",
-  "password": "$2b$10$8VYGCUg1G5EW4yPcxwt0HesX1nyelk4fSLLyZrw1UOSbGQi5kcRke"
- },
- "Kachun": {
-  "name": "Kachun",
-  "password": "$2b$10$JwfUkQEaeS4IljeGWpYRb.pSg96QnFeafBpeU0Y2c1GGO247ttvgu"
- },
  "long": {
   "name": "long",
-  "password": "$2b$10$z53xYhdSo8oIUFiL6yZ/rOefEt6Y.nhMOk0NK9J2ndvqWJegnyV4C"
+  "password": "$2b$10$WZ89b4xucfy7w3oc2a3JaO0NiWMhA6Yqf6e2m5wvTmYaEKDiB3Oqq"
  },
  "longs": {
   "name": "longs",
-  "password": "$2b$10$1hEoP3DkjXr3tjZYzs4gtucBqUu2L6bgDAKZTFe5y3ZQ7hwfpGL2a"
+  "password": "$2b$10$on/5unxMfe4qO.pz0bIWIurdTM95Gn4ZExQ6h/trsnTIDkG0Se5PC"
  }
 }

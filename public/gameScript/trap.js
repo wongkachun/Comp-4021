@@ -33,7 +33,7 @@ const Trap = function(ctx, x, y, gameArea, option) {
             count: 8,
             timing: 50,
             loop: true,
-            moving: true,
+            moving: false,
             movingDirection: 0,
             movDistance: 60,
         },
@@ -45,7 +45,7 @@ const Trap = function(ctx, x, y, gameArea, option) {
             count: 8,
             timing: 50,
             loop: true,
-            moving: true,
+            moving: false,
             movingDirection: 1,
             movDistance: 100,
         }

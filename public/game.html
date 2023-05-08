@@ -80,6 +80,37 @@ canvas {
     display: flex;
     width: 40%;
 }
+
+#text-waiting {
+    position: absolute;
+    left: 33%;
+    top: 160px;
+    color: red;
+    align-content: center;
+}
+
+#loader {
+    position: absolute;
+    left: 50%;
+    top: 75%;
+    z-index: 1;
+    width: 120px;
+    height: 120px;
+    margin: -76px 0 0 -76px;
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid #3498db;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
 </style>
 </head>
 
@@ -87,8 +118,16 @@ canvas {
 <div id="game-container">
 <canvas id="player1" width="600px" height="600px"></canvas>
 <canvas id="player2" width="600px" height="600px"></canvas>
-
-
+<div id="waiting">
+<div id="text-waiting">
+Waiting for other player
+</div>
+<div id="loader">
+</div>
+</div>
+<audio id="background-sound">
+    <source src="assets/sound/background-sound.mp3">
+</audio>
 <svg xmlns="http://www.w3.org/2000/svg" id="game-start">
             <defs>
                 <linearGradient id="title-fill" x1="0" y1="0" x2="0" y2="1">
@@ -127,102 +166,96 @@ canvas {
 <script src="gameScript/cherry.js"></script>
 <script src="gameScript/winPoint.js"></script>
 <script src="gameScript/game.js"></script>
+<script src="scripts/socket.js"></script>
+<script src="scripts/gamestate.js"></script>
 <script>
 $(document).ready(function() {
-    let players = {
-        player1: null,
-        player2: null,
-    }
     const sounds = {
-        background: new Audio("assets/sound/background-sound.mp3"),
         collect: new Audio("assets/sound/cherry-collect.mp3"),
         dead: new Audio("assets/sound/dead-sound.mp3"),
         savepoint: new Audio("assets/sound/savepoint-sound.mp3"),
         gameover: new Audio("assets/sound/gameover-sound.mp3")
     };
-    let gameState = {
-        player1: {
-            cherryLeft: 3,
-            win: false,
-            isCheat: false,
-        },
-        player2: {
-            cherryLeft: 3,
-            win: false,
-            isCheat: false,
-        },
-        finish: false,
-        winId: 0,
-        yourId: 1,
-    }
-    gameArea(players, gameState, "#player1", sounds);
-    gameArea(players, gameState, "#player2", sounds);
-    // TODO game start here
-    $("#game-start").on("click", function() {
-        /* Hide the start screen */
-        sounds.background.play();
-        $("#game-start").hide();
+    gameArea(GameState.getPlayer(), GameState.getGameState(), "#player1", sounds);
+    gameArea(GameState.getPlayer(), GameState.getGameState(), "#player2", sounds);
 
-        $(document).on("keydown", function(event) {
-            /* TODO */
-            /* Handle the key down */
-            if (players.player1 != null && players.player2 != null) {
-                switch (event.keyCode) {
-                    case 37:
-                        players.player1.move(1);
-                        break;
-                    case 38:
-                        players.player1.move(3);
-                        break;
-                    case 39:
-                        players.player1.move(2);
-                        break;
-                    case 65:
-                        players.player2.move(1);
-                        break;
-                    case 68:
-                        players.player2.move(2);
-                        break;
-                    case 81:
-                        players.player1.cheat();
-                        break;
-                    case 87:
-                        players.player2.move(3);
-                        break;
-                }
-            }
-        });
 
-        /* Handle the keyup of arrow keys and spacebar */
-        $(document).on("keyup", function(event) {
-            /* TODO */
-            /* Handle the key up */
-            if (players.player1 != null) {
-                switch (event.keyCode) {
-                    case 37:
-                        players.player1.stop(1);
-                        break;
-                    case 39:
-                        players.player1.stop(2);
-                        break;
-                    case 38:
-                        players.player1.stop(3);
-                        break;
-                    case 65:
-                        players.player2.stop(1);
-                        break;
-                    case 68:
-                        players.player2.stop(2);
-                        break;
-                    case 81:
-                        players.player1.resetCheat();
-                        break;
-                    case 87:
-                        players.player2.stop(3);
-                        break;
-                }
+
+    $(document).on("keydown", function(event) {
+        if (!GameState.getIsStart()) return;
+        /* TODO */
+        /* Handle the key down */
+        if (GameState.getPlayer().player1 != null && GameState.getPlayer().player2 != null) {
+            switch (event.keyCode) {
+                case 37:
+                    GameState.getPlayer().player1.move(1);
+                    Socket.getSocket().emit('player-move', {
+                        index: 1,
+                        distance: GameState.getPlayer().player1.getTotalDistance(),
+                        y: GameState.getPlayer().player1.getXY().y,
+                    });
+                    break;
+                case 38:
+                    GameState.getPlayer().player1.move(3);
+                    Socket.getSocket().emit('player-move', {
+                        index: 3,
+                        distance: GameState.getPlayer().player1.getTotalDistance(),
+                        y: GameState.getPlayer().player1.getXY().y,
+                    });
+                    break;
+                case 39:
+                    GameState.getPlayer().player1.move(2);
+                    Socket.getSocket().emit('player-move', {
+                        index: 2,
+                        distance: GameState.getPlayer().player1.getTotalDistance(),
+                        y: GameState.getPlayer().player1.getXY().y,
+                    });
+                    break;
+                case 81:
+                    GameState.getPlayer().player1.cheat();
+                    Socket.getSocket().emit('player-cheat', "1");
+                    break;
             }
-        });
+        }
+    });
+
+    /* Handle the keyup of arrow keys and spacebar */
+    $(document).on("keyup", function(event) {
+        if (!GameState.getIsStart()) return;
+        /* TODO */
+        /* Handle the key up */
+        if (GameState.getPlayer().player1 != null) {
+            switch (event.keyCode) {
+                case 37:
+                    GameState.getPlayer().player1.stop(1);
+                    Socket.getSocket().emit('player-stop', {
+                        index: 1,
+                        distance: GameState.getPlayer().player1.getTotalDistance(),
+                        y: GameState.getPlayer().player1.getXY().y,
+                    });
+                    break;
+                case 39:
+                    GameState.getPlayer().player1.stop(2);
+                    Socket.getSocket().emit('player-stop', {
+                        index: 2,
+                        distance: GameState.getPlayer().player1.getTotalDistance(),
+                        y: GameState.getPlayer().player1.getXY().y,
+                    });
+                    break;
+                case 38:
+                    GameState.getPlayer().player1.stop(3);
+                    Socket.getSocket().emit('player-stop', {
+                        index: 3,
+                        distance: GameState.getPlayer().player1.getTotalDistance(),
+                        y: GameState.getPlayer().player1.getXY().y,
+                    });
+                    break;
+                case 81:
+                    GameState.getPlayer().player1.resetCheat();
+                    Socket.getSocket().emit('reset-player-cheat', "1");
+                    break;
+            }
+        }
     });
 
 });

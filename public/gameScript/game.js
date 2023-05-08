@@ -49,6 +49,8 @@ const gameArea = function(players, gameState, canvasId, sounds) {
     // Moving wall
     walls.push(Platform(context, 974, 220, gameArea, 4));
     walls.push(Platform(context, 1022, 220, gameArea, 4));
+    walls.push(Platform(context, 1130, 220, gameArea, 4));
+    walls.push(Platform(context, 1178, 220, gameArea, 4));
 
     // Save point 1
     walls.push(Platform(context, 638, 480, gameArea, 2));
@@ -73,18 +75,17 @@ const gameArea = function(players, gameState, canvasId, sounds) {
         traps.push(Trap(context, 280 + i * 32, 552, gameArea, 1));
     }
     // Moving trap 1
-    traps.push(Trap(context, 590, 300, gameArea, 2));
+    traps.push(Trap(context, 590, 340, gameArea, 2));
     // Moving trap 2
-    traps.push(Trap(context, 660, 120, gameArea, 2));
+    traps.push(Trap(context, 660, 160, gameArea, 2));
     // Double mobing trap
-    traps.push(Trap(context, 1420, 196, gameArea, 3));
     traps.push(Trap(context, 1558, 136, gameArea, 2));
     // Trap wall to end
     for (let i = 0; i < 20; i++) {
         walls.push(Platform(context, 1650 + i * 48, 340, gameArea, 2));
     }
-    for (let i = 0; i < 10; i++) {
-        traps.push(Trap(context, 1682 + i * 98, 324, gameArea, 4));
+    for (let i = 0; i < 5; i++) {
+        traps.push(Trap(context, 1682 + i * 196, 324, gameArea, 4));
     }
     // Cherry 3
     cherries.push(Cherry(context, 2000, 316, gameArea));
@@ -125,13 +126,14 @@ const gameArea = function(players, gameState, canvasId, sounds) {
         // TODO show the game over here
         if (gameState.finish) {
             if (gameState.winId === 1) {
-                sounds.background.pause();
+                $('#background-sound')[0].pause();
                 sounds.gameover.play();
-                $("#winner-game").text("Player 1 win");
+                Socket.getSocket().emit('game-win', "1");
+                $("#winner-game").text("You win");
             } else if (gameState.winId === 2) {
-                sounds.background.pause();
+                $('#background-sound')[0].pause();
                 sounds.gameover.play();
-                $("#winner-game").text("Player 2 win");
+                $("#winner-game").text("You lose");
             }
 
             $("#game-over").show();

@@ -29,37 +29,9 @@ const chatSession = session({
 });
 app.use(chatSession);
 
-// This helper function checks whether the text only contains word characters
-function containWordCharsOnly(text) {
-    return /^\w+$/.test(text);
-}
 
 // // Handle the /player endpoint
 app.post("/player", (req, res) => {
-    const {
-        player,
-        x,
-        y,
-        status
-    } = req.body;
-
-    const jsonData = fs.readFileSync("data/player.json");
-    const players = JSON.parse(jsonData);
-    // console.log(players)
-
-    players[player] = {
-        x,
-        y,
-        status
-    };
-
-    fs.writeFileSync("data/player.json", JSON.stringify(players, null, " "));
-
-    const testData = fs.readFileSync("data/player.json");
-    const tests = JSON.parse(testData);
-
-    //console.log(tests);
-
     res.json({
         status: "success"
     });
@@ -97,152 +69,56 @@ httpServer.listen(8000, () => {
 io.use((socket, next) => {
     chatSession(socket.request, {}, next);
 });
-
+const connections = [null, null]
 const onlineUsers = {};
 
 io.on("connection", (socket) => {
-    if (socket.request.session.user) {
-        const {
-            username,
-            name
-        } = socket.request.session.user;
-        onlineUsers[username] = {
-            name
-        };
-        //console.log(onlineUsers);
-        io.emit("add user", JSON.stringify(socket.request.session.user));
+    const newUser = socket.request.session.user;
+    console.log(newUser);
+    if (newUser && newUser.username in onlineUsers) {
+        socket.emit('player-number', newUser.index)
+        io.emit('player-connection', newUser.index)
+    } else {
+        let playerIndex = -1;
+        for (const i in connections) {
+            if (connections[i] === null) {
+                playerIndex = i
+                break
+            }
+        }
+        socket.emit('player-number', playerIndex);
+        console.log(playerIndex);
+        if (playerIndex === -1) return
+        connections[playerIndex] = false;
+        onlineUsers[newUser.username] = {
+            name: newUser.name,
+            index: playerIndex
+        }
+        io.emit('player-connection', playerIndex)
     }
-
-    socket.on("disconnect", () => {
-        if (socket.request.session.user) {
-            const {
-                username
-            } = socket.request.session.user;
-            if (onlineUsers[username]) delete onlineUsers[username];
-            //console.log(onlineUsers);
-            io.emit("remove user", JSON.stringify(socket.request.session.user));
+    socket.on('emit-player-connection', (playerIndex) => {
+        io.emit('player-connection', playerIndex)
+    })
+    socket.on('player-move', (message) => {
+        socket.broadcast.emit('player-move', message);
+    })
+    socket.on('player-stop', (message) => {
+        socket.broadcast.emit('player-stop', message);
+    })
+    socket.on('player-cheat', (message) => {
+        socket.broadcast.emit('player-cheat', message);
+    })
+    socket.on('reset-player-cheat', (message) => {
+        socket.broadcast.emit('reset-player-cheat', message);
+    })
+    socket.on('game-win', (message) => {
+        const match = {
+            players: Object.keys(onlineUsers),
+            winner: newUser.username
         }
-    });
-
-    socket.on("get users", () => {
-        socket.emit("users", JSON.stringify(onlineUsers));
-    });
-
-    socket.on("get scores", () => {
-        const leaderboard = JSON.parse(fs.readFileSync("data/leaderboard.json"));
-        socket.emit("scores", JSON.stringify(leaderboard));
-    });
-
-    socket.on("post scores", (content) => {
-        if (socket.request.session.user) {
-            const message = {
-                user: socket.request.session.user,
-                datetime: new Date(),
-                content: content,
-            };
-            const leaderboard = JSON.parse(fs.readFileSync("data/leaderboard.json"));
-            leaderboard.push(message);
-            fs.writeFileSync(
-                "data/leaderboard.json",
-                JSON.stringify(leaderboard, null, " ")
-            );
-            io.emit("scores", JSON.stringify(leaderboard));
-        }
-    });
-
-    socket.on("player move", (type) => {
-        if (socket.request.session.user) {
-            const message = {
-                type: type,
-                onlineUsers: onlineUsers,
-            };
-            io.emit("initiate player move", JSON.stringify(message));
-        }
-    });
-
-    socket.on("player stop", (type) => {
-        if (socket.request.session.user) {
-            const message = {
-                type: type,
-                onlineUsers: onlineUsers,
-            };
-            io.emit("initiate player stop", JSON.stringify(message));
-        }
-    });
-
-    socket.on("player attack start", (type) => {
-        if (socket.request.session.user) {
-            const message = {
-                type: type,
-                onlineUsers: onlineUsers,
-            };
-            io.emit("initiate player attack start", JSON.stringify(message));
-        }
-    });
-
-    socket.on("player attack stop", (type) => {
-        if (socket.request.session.user) {
-            const message = {
-                type: type,
-                onlineUsers: onlineUsers,
-            };
-            io.emit("initiate player attack stop", JSON.stringify(message));
-        }
-    });
-
-    socket.on("game start", () => {
-        if (socket.request.session.user) {
-            io.emit("check game start", JSON.stringify(onlineUsers));
-        }
-    });
-
-    socket.on("update player score", () => {
-        type = 0;
-        if (socket.request.session.user) {
-            const message = {
-                type: type,
-                onlineUsers: onlineUsers,
-            };
-            io.emit("update leaderboard", JSON.stringify(message));
-        }
-    });
-
-    socket.on("cheat mode", (type) => {
-        if (socket.request.session.user) {
-            const message = {
-                type: type,
-                onlineUsers: onlineUsers,
-            };
-            io.emit("activate cheat mode", JSON.stringify(message));
-        }
-    });
-
-    socket.on("reset game", (type) => {
-        if (socket.request.session.user) {
-            const message = {
-                type: type,
-                onlineUsers: onlineUsers,
-            };
-            io.emit("reset game page", JSON.stringify(message));
-        }
-    });
-
-    socket.on("score event", (message) => {
-        if (socket.request.session.user) {
-            io.emit("update score event", JSON.stringify(message));
-        }
-    });
-
-    socket.on("update player status", (data) => {
-        if (socket.request.session.user) {
-            const message = {
-                x: data.x,
-                y: data.y,
-                status: data.status,
-                name: data.name,
-                onlineUsers: onlineUsers,
-            };
-            io.emit("update player status", JSON.stringify(message));
-        }
-    });
+        const jsonData = fs.readFileSync("data/matches.json");
+        const matches = JSON.parse(jsonData);
+        matches.push(match);
+        fs.writeFileSync("data/matches.json", JSON.stringify(matches, null, " "));
+    })
 });
