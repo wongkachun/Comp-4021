@@ -72,6 +72,7 @@ const SignInForm = (function() {
         $("#signin-message").text("");
         $("#register-message").text("");
         $("#signin-overlay").fadeOut(500);
+        $("#waiting").show();
     };
 
     return {

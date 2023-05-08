@@ -63,7 +63,11 @@ const GameState = (function() {
             }
         }
     }
+    const gameover = function() {
+        $("#game-over").show();
+    }
     return {
+        gameover: gameover,
         sync,
         getIsStart,
         startPlay,

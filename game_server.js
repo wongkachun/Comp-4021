@@ -76,8 +76,8 @@ io.on("connection", (socket) => {
     const newUser = socket.request.session.user;
     console.log(newUser);
     if (newUser && newUser.username in onlineUsers) {
-        socket.emit('player-number', newUser.index)
-        io.emit('player-connection', newUser.index)
+        socket.emit('player-number', onlineUsers[newUser.username].index)
+        io.emit('player-connection', onlineUsers[newUser.username].index)
     } else {
         let playerIndex = -1;
         for (const i in connections) {

@@ -33,6 +33,7 @@ const Socket = (function() {
             }
         })
         socket.on('player-move', (index) => {
+            console.log("move", index);
             GameState.playerMove(parseInt(index.index));
             //GameState.sync(parseInt(index.distance), index.y);
         })

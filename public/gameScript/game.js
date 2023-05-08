@@ -123,7 +123,7 @@ const gameArea = function(players, gameState, canvasId, sounds) {
     /* The main processing of the game */
 
     function doFrame(now) {
-        // TODO show the game over here
+
         if (gameState.finish) {
             if (gameState.winId === 1) {
                 $('#background-sound')[0].pause();
@@ -135,14 +135,12 @@ const gameArea = function(players, gameState, canvasId, sounds) {
                 sounds.gameover.play();
                 $("#winner-game").text("You lose");
             }
-
-            $("#game-over").show();
+            // TODO
+            GameState.gameover();
             return;
         }
         if (gameStartTime == 0) gameStartTime = now;
 
-        /* Update the time remaining */
-        const gameTimeSoFar = now - gameStartTime;
 
 
         player.update(now);

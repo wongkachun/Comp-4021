@@ -91,8 +91,8 @@ canvas {
 
 #loader {
     position: absolute;
-    left: 50%;
-    top: 75%;
+    left: 44%;
+    top: 260px;
     z-index: 1;
     width: 120px;
     height: 120px;
@@ -101,6 +101,15 @@ canvas {
     border-radius: 50%;
     border-top: 16px solid #3498db;
     animation: spin 2s linear infinite;
+}
+
+#waiting {
+    display: none;
+}
+
+#text-waiting {
+    font-size: 150%;
+    text-align: center;
 }
 
 @keyframes spin {
@@ -138,7 +147,6 @@ Waiting for other player
                 </linearGradient>
             </defs>
             <text id="game-title" x="50%" y="45%">Parkour Game</text>
-            <text x="50%" y="60%">Click here to start the game</text>
         </svg>
 
 <svg xmlns="http://www.w3.org/2000/svg" id="game-over" style="display: none">
